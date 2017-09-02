@@ -15,4 +15,12 @@ module.exports = {
 		name: "Cast Spell",
 		dice: 10,
 	},
+	BonusAction: {
+		name: "Bonus Action",
+		dice: 6,
+	},
+	OtherAction: {
+		name: "Other Action",
+		dice: 6,
+	},
 }
