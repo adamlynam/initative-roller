@@ -1,0 +1,31 @@
+ul {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+    li {
+        margin: 5px;
+        padding: 5px;
+        width: 200px;
+        background-color: #eeeeee;
+        border: 1px solid #000000;
+    }
+    li:hover {
+        background-color: #cccccc;
+        cursor: pointer;
+    }
+
+.action-choices {
+    float: left;
+    margin: 5px;
+}
+    
+.action-pool {
+    float: left;
+    margin: 5px;
+}
+    
+.log {
+    float: left;
+    margin: 5px;
+}
