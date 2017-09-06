@@ -32,7 +32,7 @@ class ClientControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecti
     implicit val materializer = ActorMaterializer()
     implicit val actionPoolWrites = Json.format[ActionPool]
 
-    "return JSON ActionPool send to server" in {
+    "return JSON ActionPool to one client" in {
       running(TestServer(TEST_SERVER_PORT), HTMLUNIT) { _ =>
         val actionPool = ActionPool(
           characterName = "[TestCharacter]",
@@ -54,7 +54,7 @@ class ClientControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecti
       }
     }
 
-    "return any messsage with \"I received your message: \" prepended to all clients" in {
+    "return JSON ActionPool to all clients" in {
       running(TestServer(TEST_SERVER_PORT), HTMLUNIT) { _ =>
         val actionPool = ActionPool(
           characterName = "[TestCharacter]",
