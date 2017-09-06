@@ -52,7 +52,7 @@ class ChatClient(out: ActorRef) extends Actor {
   def rollAction(action: GameAction.Value): RolledAction = {
     RolledAction(
       action = action,
-      roll = (new Random).nextInt(GameAction.rollAction(action))
+      roll = (new Random).nextInt(GameAction.rollAction(action)) + 1
     )
   }
 
