@@ -7,10 +7,10 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
-import model.{ActionPool, GameAction}
+import model.{ActionPool, GameAction, GameTurn, RolledAction}
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
-import play.api.libs.json.{Json}
+import play.api.libs.json.Json
 import play.api.test._
 import play.api.test.Helpers._
 
@@ -30,31 +30,11 @@ class ClientControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecti
 
     implicit val system = ActorSystem()
     implicit val materializer = ActorMaterializer()
-    implicit val actionPoolWrites = Json.format[ActionPool]
+    implicit val actionPoolFormat = Json.format[ActionPool]
+    implicit val rolledActionFormat = Json.format[RolledAction]
+    implicit val gameTurnFormat = Json.format[GameTurn]
 
-    "return JSON ActionPool to one client" in {
-      running(TestServer(TEST_SERVER_PORT), HTMLUNIT) { _ =>
-        val actionPool = ActionPool(
-          characterName = "[TestCharacter]",
-          actions = List(GameAction.MOVE))
-
-        val (_, complete) =
-          Http().singleWebSocketRequest(
-            WebSocketRequest("ws://localhost:" + TEST_SERVER_PORT + "/connect"),
-            Flow.fromSinkAndSourceMat({
-              Sink.head[Message]
-            },{
-              Source.single(TextMessage(Json.toJson[ActionPool](actionPool).toString()))
-                .concatMat(Source.maybe[Message])(Keep.right)
-            })(Keep.left))
-
-        Await.result(complete, FiniteDuration(5, TimeUnit.SECONDS)) match {
-          case message: TextMessage.Strict => Json.fromJson[ActionPool](Json.parse(message.text)).get mustBe actionPool
-        }
-      }
-    }
-
-    "return JSON ActionPool to all clients" in {
+    "send ActionPool JSON and receive rolled GameTurn JSON back to all clients" in {
       running(TestServer(TEST_SERVER_PORT), HTMLUNIT) { _ =>
         val actionPool = ActionPool(
           characterName = "[TestCharacter]",
@@ -80,16 +60,22 @@ class ClientControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecti
             })(Keep.left))
 
         completeSecond.map {
-          case message: TextMessage.Strict => Json.fromJson[ActionPool](Json.parse(message.text)).get mustBe actionPool
+          case message: TextMessage.Strict => {
+            val responseJson = Json.fromJson[GameTurn](Json.parse(message.text))
+            responseJson.get.characterName mustBe "[asdTestCharacter]"
+            responseJson.get.rolls.head.action mustBe GameAction.MOVE
             completeFirst._2.success(None)
+          }
         }
 
         Await.result(completeFirst._1, FiniteDuration(5, TimeUnit.SECONDS)) match {
-          case message: TextMessage.Strict => Json.fromJson[ActionPool](Json.parse(message.text)).get mustBe actionPool
+          case message: TextMessage.Strict => {
+            val responseJson = Json.fromJson[GameTurn](Json.parse(message.text))
+            responseJson.get.characterName mustBe "[TestCharacter]"
+            responseJson.get.rolls.head.action mustBe GameAction.MOVE
+          }
         }
       }
     }
   }
 }
-
-
