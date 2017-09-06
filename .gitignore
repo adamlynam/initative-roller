@@ -1,2 +1,11 @@
+logs
+target
+/.idea
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+
 js/node_modules/
 js/bin/
