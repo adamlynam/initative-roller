@@ -4,7 +4,7 @@ module.exports = React.createClass({
 	render: function() {
 		return <div className="log">
             <h3>Log</h3>
-            <ul>{this.props.log.map(logItem => {
+            <ul>{Array.from(this.props.log).reverse().map(logItem => {
                 return <li key={logItem.key}>
                     {logItem.text}
                 </li>})}
