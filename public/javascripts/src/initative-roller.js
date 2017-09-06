@@ -7,10 +7,15 @@ var Log = require('./renderers/log');
 
 var Roller = React.createClass({
 	getInitialState: function() {
+	    var serverConnection = new WebSocket("ws://" + location.host + "/connect");
+        serverConnection.onmessage = event => {
+            this.receiveGameTurn(JSON.parse(event.data));
+        }
 		return {
             nextActionKey: 0,
             actionPool: new Map(),
             nextLogKey: 0,
+            serverConnection: serverConnection,
             log: []
 		};
 	},
@@ -50,11 +55,18 @@ var Roller = React.createClass({
 			};
 		});
 	},
+	receiveGameTurn: function(gameTurn) {
+        this.appendToLog(gameTurn.characterName + " rolled " +
+            gameTurn.rolls.reduce((prevVal, value) => {return prevVal + value.roll}, 0) +
+            " = " + gameTurn.rolls.map(roll => {return roll.action + "{" + roll.roll + "}"}))
+	},
     rollActionPool: function() {
-        var rolledResult = Array.from(this.state.actionPool).map(([key, action]) => {
-            return Math.ceil(Math.random() * action.dice);
-        });
-        this.appendToLog("Rolled [" + rolledResult + "] = " + rolledResult.reduce((prevVal, value) => {return prevVal + value}, 0));
+        this.state.serverConnection.send(JSON.stringify({
+            characterName: "Test",
+            actions: Array.from(this.state.actionPool).map(([key, action]) => {
+                return action.name;
+            })
+        }));
         this.emptyActionPool();
 	},
     
