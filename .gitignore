@@ -6,6 +6,3 @@ target
 /.project
 /.settings
 /RUNNING_PID
-
-js/node_modules/
-js/bin/
