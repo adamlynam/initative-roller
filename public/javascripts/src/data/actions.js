@@ -1,26 +1,32 @@
 module.exports = {
 	Move: {
-		name: "MOVE",
+		name: "Move",
+		apiName: "MOVE",
 		dice: 6,
 	},
 	RangedAttack: {
-		name: "RANGED_ATTACK",
+		name: "Ranged Attack",
+		apiName: "RANGED_ATTACK",
 		dice: 4,
 	},
 	MeleeAttack: {
-		name: "MELEE_ATTACK",
+		name: "Melee Attack",
+		apiName: "MELEE_ATTACK",
 		dice: 8,
 	},
 	CastSpell: {
-		name: "CAST_SPELL",
+		name: "Cast Spell",
+		apiName: "CAST_SPELL",
 		dice: 10,
 	},
 	BonusAction: {
-		name: "BONUS_ACTION",
+		name: "Bonus Action",
+		apiName: "BONUS_ACTION",
 		dice: 6,
 	},
 	OtherAction: {
-		name: "OTHER_ACTION",
+		name: "Other Action",
+		apiName: "OTHER_ACTION",
 		dice: 6,
 	},
 }

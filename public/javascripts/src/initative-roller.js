@@ -1,8 +1,10 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+var ChooseName = require('./renderers/choose-name');
 var ChooseActions = require('./renderers/choose-actions');
 var ActionPool = require('./renderers/action-pool');
+var TurnOrder = require('./renderers/turn-order');
 var Log = require('./renderers/log');
 
 var Roller = React.createClass({
@@ -13,9 +15,12 @@ var Roller = React.createClass({
         }
 		return {
             nextActionKey: 0,
-            actionPool: new Map(),
+            nextTurnOrderKey: 0,
             nextLogKey: 0,
+            actionPool: new Map(),
             serverConnection: serverConnection,
+            name: "",
+            turnOrder: [],
             log: []
 		};
 	},
@@ -47,6 +52,21 @@ var Roller = React.createClass({
 			};
 		});
 	},
+	addToTurnOrder: function(name, roll) {
+		this.setState((previousState, currentProps) => {
+			return {
+                nextTurnOrderKey: previousState.nextTurnOrderKey + 1,
+				turnOrder: [...previousState.turnOrder, {key: previousState.nextTurnOrderKey, name: name, roll: roll}],
+			};
+		});
+	},
+    emptyTurnOrder: function(actionPoolKey) {
+		this.setState((previousState, currentProps) => {
+			return {
+				turnOrder: [],
+			};
+		});
+	},
 	appendToLog: function(logText) {
 		this.setState((previousState, currentProps) => {
 			return {
@@ -55,16 +75,25 @@ var Roller = React.createClass({
 			};
 		});
 	},
+	setName: function(newName) {
+		this.setState((previousState, currentProps) => {
+			return {
+                name: newName,
+			};
+		});
+	},
 	receiveGameTurn: function(gameTurn) {
+	    var rollTotal = gameTurn.rolls.reduce((prevVal, value) => {return prevVal + value.roll}, 0);
+        this.addToTurnOrder(gameTurn.characterName, rollTotal);
         this.appendToLog(gameTurn.characterName + " rolled " +
-            gameTurn.rolls.reduce((prevVal, value) => {return prevVal + value.roll}, 0) +
-            " = " + gameTurn.rolls.map(roll => {return roll.action + "{" + roll.roll + "}"}))
+            rollTotal +
+            " = " + gameTurn.rolls.map(roll => {return roll.action + "{" + roll.roll + "}"}));
 	},
     rollActionPool: function() {
         this.state.serverConnection.send(JSON.stringify({
-            characterName: "Test",
+            characterName: this.state.name,
             actions: Array.from(this.state.actionPool).map(([key, action]) => {
-                return action.name;
+                return action.apiName;
             })
         }));
         this.emptyActionPool();
@@ -72,8 +101,10 @@ var Roller = React.createClass({
     
 	render: function() {
 		return <div>
+		    <ChooseName name={this.state.name} setName={this.setName} />
             <ChooseActions addToActionPool={this.addToActionPool} />
             <ActionPool actionPool={this.state.actionPool} removeFromActionPool={this.removeFromActionPool} rollActionPool={this.rollActionPool} />
+            <TurnOrder turnOrder={this.state.turnOrder} emptyTurnOrder={this.emptyTurnOrder} />
             <Log log={this.state.log} />
 		</div>;
 	}

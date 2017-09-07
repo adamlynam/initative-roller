@@ -24,8 +24,17 @@ ul {
     float: left;
     margin: 5px;
 }
+
+.turn-order {
+    float: left;
+    margin: 5px;
+}
     
 .log {
     float: left;
     margin: 5px;
 }
+    .log div {
+        border: solid 1px #000000;
+        padding: 5px;
+    }
