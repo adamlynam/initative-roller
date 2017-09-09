@@ -9,22 +9,33 @@ var Log = require('./renderers/log');
 
 var Roller = React.createClass({
 	getInitialState: function() {
-	    var serverConnection = new WebSocket("ws://" + location.host + "/connect");
-        serverConnection.onmessage = event => {
-            this.receiveGameTurn(JSON.parse(event.data));
-        }
 		return {
             nextActionKey: 0,
             nextTurnOrderKey: 0,
             nextLogKey: 0,
             actionPool: new Map(),
-            serverConnection: serverConnection,
+            serverConnection: this.connectToServer(),
             name: "",
             turnOrder: [],
             log: []
 		};
 	},
-	
+
+	connectToServer: function() {
+        var connection = new WebSocket("ws://" + location.host + "/connect");
+        connection.onmessage = event => {
+            this.receiveGameTurn(JSON.parse(event.data));
+        }
+        connection.onclose = event => {
+            console.log("WebSocket disconnected, reconnecting...");
+            this.setState((previousState, currentProps) => {
+                return {
+                    serverConnection: this.connectToServer(),
+                }
+            });
+        }
+        return connection;
+	},
 	addToActionPool: function(action) {
 		this.setState((previousState, currentProps) => {
 			var actionPool = new Map(previousState.actionPool);
