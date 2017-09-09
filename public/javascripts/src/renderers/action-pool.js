@@ -9,7 +9,8 @@ module.exports = React.createClass({
                     {action.name}
                 </li>})}
             </ul>
-            <input type="submit" value="Roll Initative" onClick={this.props.rollActionPool}/>
+            <input type="submit" value="Roll Publicly" onClick={this.props.rollPublicly}/>
+            <input type="submit" value="Roll Secretly" onClick={this.props.rollSecretly}/>
         </div>;
 	}
 });

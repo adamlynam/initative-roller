@@ -100,7 +100,7 @@ var Roller = React.createClass({
             rollTotal +
             " = " + gameTurn.rolls.map(roll => {return roll.action + "{" + roll.roll + "}"}));
 	},
-    rollActionPool: function() {
+    sendActionPoolToServer: function() {
         this.state.serverConnection.send(JSON.stringify({
             characterName: this.state.name,
             actions: Array.from(this.state.actionPool).map(([key, action]) => {
@@ -109,12 +109,24 @@ var Roller = React.createClass({
         }));
         this.emptyActionPool();
 	},
+    rollActionPoolSecretly: function() {
+	    this.receiveGameTurn({
+	        characterName: this.state.name,
+	        rolls: Array.from(this.state.actionPool).map(([key, action]) => {
+	            return {
+                    action: action.apiName,
+                    roll: Math.ceil(Math.random() * action.dice),
+	            }
+	        }),
+	    });
+        this.emptyActionPool();
+	},
     
 	render: function() {
 		return <div>
 		    <ChooseName name={this.state.name} setName={this.setName} />
             <ChooseActions addToActionPool={this.addToActionPool} />
-            <ActionPool actionPool={this.state.actionPool} removeFromActionPool={this.removeFromActionPool} rollActionPool={this.rollActionPool} />
+            <ActionPool actionPool={this.state.actionPool} removeFromActionPool={this.removeFromActionPool} rollPublicly={this.sendActionPoolToServer} rollSecretly={this.rollActionPoolSecretly} />
             <TurnOrder turnOrder={this.state.turnOrder} emptyTurnOrder={this.emptyTurnOrder} />
             <Log log={this.state.log} />
 		</div>;
