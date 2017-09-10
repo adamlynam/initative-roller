@@ -24,6 +24,11 @@ module.exports = {
 		apiName: "BONUS_ACTION",
 		dice: 6,
 	},
+	ChangeEquipment: {
+		name: "Change Equipment",
+		apiName: "CHANGE_EQUIPMENT",
+		dice: 6,
+	},
 	OtherAction: {
 		name: "Other Action",
 		apiName: "OTHER_ACTION",
